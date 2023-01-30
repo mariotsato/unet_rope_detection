@@ -1,14 +1,4 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
-
 # source code: https://github.com/aladdinpersson/Machine-Learning-Collection/tree/master/ML/Pytorch/image_segmentation/semantic_segmentation_unet
-
-
-# In[2]:
-
 
 import torch
 import albumentations as A
@@ -22,15 +12,9 @@ import numpy as np
 
 # ### model
 
-# In[3]:
-
-
 import torch
 import torch.nn as nn
 import torchvision.transforms.functional as TF
-
-
-# In[4]:
 
 
 class DoubleConv(nn.Module):
@@ -47,9 +31,6 @@ class DoubleConv(nn.Module):
 
     def forward(self, x):
         return self.conv(x)
-
-
-# In[5]:
 
 
 class UNET(nn.Module):
@@ -104,16 +85,10 @@ class UNET(nn.Module):
 
 # ### dataset
 
-# In[6]:
-
-
 import os
 from PIL import Image
 from torch.utils.data import Dataset
 import numpy as np
-
-
-# In[19]:
 
 
 class CarvanaDataset(Dataset):
@@ -142,9 +117,6 @@ class CarvanaDataset(Dataset):
 
 
 # ### utilities
-
-# In[8]:
-
 
 import torch
 import torchvision
@@ -244,52 +216,6 @@ def save_predictions_as_imgs(
     model.train()
 
 
-# ### training
-
-# In[10]:
-
-
-# image_size = (256,256) # defining image size
-# data_path = os.path.join("","train_tomato.npy") # define the path to the numpy
-# print(data_path)
-# train_loaded = np.load(data_path,allow_pickle = True) # import the tomato.npy file into the project
-
-
-# In[11]:
-
-
-# os.listdir(test_loaded["train_x"])
-# # o problema eh q estou tentando aplicar o npy file para list dir
-
-
-# In[12]:
-
-
-# image_size = (256,256) # defining image size
-# data_path = os.path.join("","test_tomato.npy") # define the path to the numpy
-# print(data_path)
-# test_loaded = np.load(data_path,allow_pickle = True) # import the tomato.npy file into the project
-
-
-# In[13]:
-
-
-#load tomato.npy
-#loaded = np.load(data_path,allow_pickle = True) # import the tomato.npy file into the project
-# loaded = loaded.flatten() # flatten the variable be
-# loaded = loaded[0]
-
-
-# In[14]:
-
-
-# TRAIN_IMG_DIR = np.asarray(loaded['train_x'])
-# TRAIN_MASK_DIR = np.asarray(loaded['train_y'])
-
-
-# In[15]:
-
-
 # Hyperparameters etc.
 LEARNING_RATE = 1e-4
 DEVICE = "mps" if torch.cuda.is_available() else "cpu"
@@ -308,9 +234,6 @@ TRAIN_IMG_DIR = "../02_data_retrain/retrain/raw_cut/"
 TRAIN_MASK_DIR = "../02_data_retrain/retrain/gt_cut/"
 VAL_IMG_DIR = "../02_data_retrain/retrain/val_img/"
 VAL_MASK_DIR = "../02_data_retrain/retrain/val_gt/"
-
-
-# In[16]:
 
 
 def train_fn(loader, model, optimizer, loss_fn):
@@ -336,10 +259,6 @@ def train_fn(loader, model, optimizer, loss_fn):
 
         # update tqdm loop
         loop.set_postfix(loss=loss.item())
-
-
-# In[17]:
-
 
 def main():
     train_transform = A.Compose(
@@ -410,34 +329,8 @@ def main():
             val_loader, model, folder="training data/predicted/", device=DEVICE
         )
 
-
-# In[20]:
-
+# apply:
 
 if __name__ == "__main__":
     main()
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
