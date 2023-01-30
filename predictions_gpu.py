@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # # Making predictions using the trained model
 
 # ### In this project, it will be applied the U-net model build previously trained
@@ -9,10 +6,6 @@
 #     - 0. Select the images to apply the segmentation model
 #     - 1. Split the images to four and save
 #     - 2. Apply the model to the splitted images
-#    
-
-# In[1]:
-
 
 # import libraries
 
@@ -33,19 +26,12 @@ from PIL import Image, ImageFilter
 
 # ### 1. Split the images and save
 
-# In[2]:
-
-
 # declare the folders' paths
 
 raw_folder = "../02_data_retrain/retrain/test_1_image/"
 #"../02_data_3/03_predictions/01_raw images/"
 #load the folder name in the variable
 #01_raw images
-
-
-# In[7]:
-
 
 # create a function to read the raw and b&w images, and filenames
 
@@ -63,36 +49,17 @@ def read_set(directory):
                 filenames.append(pathname) #including filenames in the list
     return datas,filenames #return the variables in list
 
-
-# In[8]:
-
-
 # read the images and store them as array
 
 datas,filename = read_set(raw_folder) 
 
 # using the defined function before, 
 # read the original and ground truth images, and the filenames to the lists
-
-
-# In[9]:
-
-
-datas
-
-
-# In[10]:
-
-
 # check the shape of read images
 
 print("Datas shape = ", datas[0].shape)
 
 # gray scale images have to have 1 color in 3rd channel. So, let us fix it.
-
-
-# In[11]:
-
 
 # Creating a single image splitter function
 
@@ -125,10 +92,6 @@ def split(data,size):
     return result
 # This was created a list with 256x256 pixels images of a single complete image in data.
 
-
-# In[12]:
-
-
 # This is used to split several images at once.
 
 def imageSplitter(datas,size): # 3 inputs: normal image, ground truth image, size 256x256
@@ -139,10 +102,6 @@ def imageSplitter(datas,size): # 3 inputs: normal image, ground truth image, siz
         splittedDatas.extend(tempData) #Add the splitted image to the list
     return splittedDatas #return the lists with splitted images.
 
-
-# In[47]:
-
-
 # apply splitting function
 
 size = (216,324) #864,1296 #1728,2592 #Size of chunk of images that we want
@@ -151,10 +110,6 @@ size = (216,324) #864,1296 #1728,2592 #Size of chunk of images that we want
 
 splittedDatas = imageSplitter(datas,size) 
 # using the function that was defined before, 
-
-
-# In[13]:
-
 
 # creating a list with filenames
 
@@ -166,10 +121,6 @@ for i in filename:
         new_filename.append(new)
 print(new_filename)
 
-
-# In[49]:
-
-
 # Create a temporary filename to plot the images
 
 temp_filename = []
@@ -179,10 +130,6 @@ for i in new_filename:
     temp_filename.append(i[0:8])
     
 print(temp_filename)
-
-
-# In[14]:
-
 
 # print some images to visualize
 
@@ -201,10 +148,6 @@ for x in range(0,16,4): # for each 4 images
     
     del x, f, ax
 
-
-# In[51]:
-
-
 # Save the Raw splitted images into the folder "02_cut images".
 path_cut = "../02_data_retrain/retrain/gt_cut/"
 #"../02_data_retrain/02_rope segmentation/01_train/train_raw/" 
@@ -220,9 +163,6 @@ for i in range(0, len(splittedDatas)):
 # ### 2. Apply the model to the splitted images
 
 # #### Take the cut images and apply to the segmentation function
-
-# In[15]:
-
 
 # import the models used in training
 
@@ -240,10 +180,6 @@ class DoubleConv(nn.Module):
 
     def forward(self, x):
         return self.conv(x)
-
-
-# In[16]:
-
 
 # import the models used training
 
@@ -296,10 +232,6 @@ class UNET(nn.Module):
 
         return self.final_conv(x)
 
-
-# In[17]:
-
-
 # define the function to load the trained model
 
 def load_checkpoint(checkpoint, model):
@@ -309,22 +241,15 @@ def load_checkpoint(checkpoint, model):
 
 # #### Applying the model to each images
 
-# In[20]:
-
-
 # Apply an UNET to the model once
 model = UNET(in_channels=3, out_channels=1)
 
 # Apply the function to load effectively
-load_checkpoint(torch.load("my_checkpoint_epoch100.pth.tar"), model)
+load_checkpoint(torch.load("my_checkpoint_epoch.pth.tar"), model)
 
 # defining evaluation mode
-trained_model = model.to("cpu")
+trained_model = model.to("cuda")
 trained_model.eval()
-
-
-# In[42]:
-
 
 # Declare the dataset transformner
 # Normalize the values and transform to tensors
@@ -333,18 +258,10 @@ test_transform = A.Compose([A.Resize(1728,2592), #3456, 5184
                            A.Normalize(mean=(0,0,0),std=(1,1,1),max_pixel_value=255),
                            ToTensorV2()])
 
-
-# In[18]:
-
-
 # Select the path of the images to pass through model
 
 pred_path = "../02_data_3/03_predictions/02_cut images/" #02_cut images
 predicted_path = "../02_data_3/03_predictions/03_predicted images/" #03_predicted images
-
-
-# In[44]:
-
 
 # Putting images through model to segment rope
 
@@ -387,52 +304,4 @@ for im in os.listdir(pred_path):
             del mask
 
             # Then, the segmented images will be saved in the folder "03_predicted images"
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
