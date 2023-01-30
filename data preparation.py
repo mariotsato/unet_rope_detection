@@ -1,6 +1,3 @@
-#!/usr/bin/env python
-# coding: utf-8
-
 # # Data preparation for the image segmentation
 
 # ### This is the process of the creation of GT images from Raw Images
@@ -18,10 +15,7 @@
 
 # ### 1. Convert all the images to .png format
 
-# ### CONFIGURE THE 
-
-# In[1]:
-
+# ### CONFIGURATION 
 
 # importing the necessary libraries
 
@@ -39,9 +33,6 @@ from PIL import Image #Python image editing library
 import pickle
 
 
-# In[2]:
-
-
 # Check if the path exists.
 
 # Specify path
@@ -54,10 +45,6 @@ if isExist == True:
 elif isExist == False:
     print("The specified folder does not exist. So, the folder /01_downloaded was created. Please, put the downloaded images in this folder.") 
     os.mkdir("../02_data/01_data preparation/01_downloaded")
-
-
-# In[5]:
-
 
 # convert the images in raw folder
 
@@ -81,12 +68,7 @@ for img in os.listdir(path1):
         im.save(os.path.join(path2, png))
 
 
-# _____
-
 # ### 2. Apply the Color Detection
-
-# In[9]:
-
 
 # Detecting blue color things in raw images
 
@@ -126,21 +108,13 @@ for imgs in os.listdir(path):
 
         cv2.imwrite(path_last, blur) # saved into the folder "03_detected_blue"
 
-
-# _____
-
 # ### 3. Paint the unnecessary white noise with black pencil manually
 
 # - Import the image and paint the image with black pencil manually.
 # - In this case, it was used the GIMP software.
 # - Then, save the images into the folder "04_fixed_manually".
 
-# ______
-
 # ### 4. Tranform the GT images to PNG format and Gray scale
-
-# In[2]:
-
 
 # convert the images just to make sure that the files are in the same format
 
@@ -152,15 +126,10 @@ for img in os.listdir(path1):
     png = img[:8]+".png"
     im.save(os.path.join(path1, png))
 
-
-# In[12]:
-
-
 # transform all the png images to gray scale
 
 path1 = "../02_data_retrain/01_data preparation/04_fixed_manually"
 path2 = "../02_data_retrain/01_data preparation/05_gt"
-
 
 for imgs in os.listdir(path1):
     img = cv2.imread(os.path.join(path1, imgs))
@@ -176,16 +145,9 @@ for imgs in os.listdir(path1):
 
 # ### 5. Read the images to prepare for image splitting (data augmentation for Segmentation training)
 
-# In[14]:
-
-
 # declare the folders' paths
-
 raw_folder = "../02_data_retrain/01_data preparation/02_raw/" #load the folder name in the variable
 gt_folder = "../02_data_retrain/01_data preparation/05_gt/" #load the folder name in the variable
-
-
-# In[17]:
 
 
 # create a function to read the raw and b&w images, and filenames
@@ -208,38 +170,20 @@ def read_set(gtdirectory,directory):
                 filenames.append(im_data) #including filenames in the list
     return datas,gts,filenames #return the variables in list
 
-
-# In[18]:
-
-
 # read the images and store them as array
-
 datas,gts,filename = read_set(gt_folder, raw_folder) 
 
 # using the defined function before, 
 # read the original and ground truth images, and the filenames to the lists
 
-
-# In[19]:
-
-
 # check the shape of read images
-
 print("Ground truth shape = ", gts[0].shape)
 print("Datas shape = ", datas[0].shape)
-
 # gray scale images have to have 1 color in 3rd channel. So, let us fix it.
-
-
-# _____
 
 # ### 6. Split the Raw and Ground truth images
 
-# In[20]:
-
-
 # Creating a single image splitter function
-
 def split(data,size):
     horizontalSplit = data.shape[1]/size[1] # widht of an image divided to width of size(256)
     result = [] #empty list
@@ -252,7 +196,6 @@ def split(data,size):
     verticalSplit = int(verticalSplit) # make this number integer
     
 #Until here, we discovered in what number of parts we have to cut the image.
-    
     for i in range(0,horizontalSplit): # 0 a 6
         xStart = i *size[1] # 0, 1280
         xEnd = xStart + size[1] # 256, 1536
@@ -269,10 +212,6 @@ def split(data,size):
     return result
 # This was created a list with 256x256 pixels images of a single complete image in data.
 
-
-# In[21]:
-
-
 # This is used to split several images at once.
 
 def imageSplitter(datas,gts,size): # 3 inputs: normal image, ground truth image, size 256x256
@@ -287,10 +226,6 @@ def imageSplitter(datas,gts,size): # 3 inputs: normal image, ground truth image,
         splittedGts.extend(tempGt) #Add the splitted gt image to the list
     return splittedDatas,splittedGts #return the lists with splitted images.
 
-
-# In[22]:
-
-
 # apply splitting function
 
 size = (1728,2592) #Size of chunk of images that we want
@@ -300,10 +235,6 @@ size = (1728,2592) #Size of chunk of images that we want
 splittedDatas,splittedGts = imageSplitter(datas,gts,size) 
 # using the function that was defined before, 
 # we split the images into the chunk of images that we use to train the model
-
-
-# In[23]:
-
 
 # print some images to visualize
 
@@ -319,36 +250,19 @@ for x in range(60,64): # for each 10 images
     plt.imshow(splittedGts[x]) #Showing gt images beside the original one
     plt.title("Ground Truth") #Adding subtitle into the gt images
 
-
-# In[24]:
-
-
 # Count the number of total splitted images
-
 print(f"splittedGts is a list of = {splittedGts.__len__()} ground truth images") # still in list format
 print(f"splittedDatas is a list of = {splittedDatas.__len__()} rgb images") # still in list format
 
-
-# In[25]:
-
-
 # Using np.asarray(), convert the input to a numpy array
-
 splittedGts = np.asarray(splittedGts)
 splittedDatas = np.asarray(splittedDatas)
 print(f"splittedGts now is an 4 dimension array with {splittedGts.shape} shape")
 print(f"splittedDatas now is an 4 dimension array with {splittedDatas.shape} shape")
 
-
-# _____
-
 # ### 7. Save the images as png image type in folder
 
-# In[26]:
-
-
 # creating a list with filenames
-
 new_filename = []
 
 for i in filename:
@@ -356,41 +270,15 @@ for i in filename:
         new = str(i[:8])+"_"+str(j)+'.png' # adding numerations for splitted images
         new_filename.append(new)
 
-
-# In[27]:
-
-
 # check if the filenames are in the list
-
 print(new_filename)
 
-
-# In[29]:
-
-
 # Save the Raw splitted images into the folder "06_raw_cut".
-
 for i in range(0, len(splittedDatas)):
     plt.imsave("../02_data_retrain/01_data preparation/06_raw_cut/" +str(new_filename[i]), splittedDatas[i])
 
-
-# In[30]:
-
-
 # Save the Ground truth splitted images into the folder "07_gt_cut".
-
 for i in range(0, len(splittedGts)):
     plt.imsave("../02_data_retrain/01_data preparation/07_gt_cut/" +str(new_filename[i]), splittedGts[i], cmap='gray')
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
 
 
